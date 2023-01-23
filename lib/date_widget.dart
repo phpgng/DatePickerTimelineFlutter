@@ -41,15 +41,27 @@ class DateWidget extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.all(8),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Text(new DateFormat("MMM", locale).format(date).toUpperCase(), // Month
-                  style: monthTextStyle),
-              Text(date.day.toString(), // Date
-                  style: dateTextStyle),
-              Text(new DateFormat("E", locale).format(date).toUpperCase(), // WeekDay
-                  style: dayTextStyle)
+              Text(
+                  new DateFormat("E", locale)
+                      .format(date)
+                      .toUpperCase(), // WeekDay
+                  style: dayTextStyle),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(date.day.toString(), // Date
+                      style: dateTextStyle),
+                  Text(
+                      new DateFormat("MMM", locale)
+                          .format(date)
+                          .toUpperCase(), // Month
+                      style: monthTextStyle),
+                ],
+              ),
             ],
           ),
         ),
