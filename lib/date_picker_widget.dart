@@ -58,9 +58,12 @@ class DatePicker extends StatefulWidget {
   /// Locale for the calendar default: en_us
   final String locale;
 
+  final double containerWidth;
+
   DatePicker(
     this.startDate, {
     Key? key,
+    this.containerWidth = 0,
     this.width = 60,
     this.height = 80,
     this.controller,
@@ -123,7 +126,11 @@ class _DatePickerState extends State<DatePicker> {
     this.deactivatedDayStyle =
         widget.dayTextStyle.copyWith(color: widget.deactivatedColor);
 
-    _controller = ScrollController(initialScrollOffset: widget.width / 2);
+    _controller = widget.containerWidth != 0
+        ? ScrollController(
+            initialScrollOffset:
+                ((widget.width * 7) - widget.containerWidth) / 1.8)
+        : ScrollController();
 
     super.initState();
   }
@@ -131,85 +138,87 @@ class _DatePickerState extends State<DatePicker> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: widget.height,
-      child: ListView.builder(
-        itemCount: widget.daysCount,
-        scrollDirection: Axis.horizontal,
-        controller: _controller,
-        itemBuilder: (context, index) {
-          // get the date object based on the index position
-          // if widget.startDate is null then use the initialDateValue
-          DateTime date;
-          DateTime _date = widget.startDate.add(Duration(days: index));
-          date = new DateTime(_date.year, _date.month, _date.day);
+        height: widget.height,
+        child: Center(
+          child: ListView.builder(
+            itemCount: widget.daysCount,
+            scrollDirection: Axis.horizontal,
+            controller: _controller,
+            itemBuilder: (context, index) {
+              // get the date object based on the index position
+              // if widget.startDate is null then use the initialDateValue
+              DateTime date;
+              DateTime _date = widget.startDate.add(Duration(days: index));
+              date = new DateTime(_date.year, _date.month, _date.day);
 
-          bool isDeactivated = false;
+              bool isDeactivated = false;
 
-          // check if this date needs to be deactivated for only DeactivatedDates
-          if (widget.inactiveDates != null) {
+              // check if this date needs to be deactivated for only DeactivatedDates
+              if (widget.inactiveDates != null) {
 //            print("Inside Inactive dates.");
-            for (DateTime inactiveDate in widget.inactiveDates!) {
-              if (_compareDate(date, inactiveDate)) {
+                for (DateTime inactiveDate in widget.inactiveDates!) {
+                  if (_compareDate(date, inactiveDate)) {
+                    isDeactivated = true;
+                    break;
+                  }
+                }
+              }
+
+              // check if this date needs to be deactivated for only ActivatedDates
+              if (widget.activeDates != null) {
                 isDeactivated = true;
-                break;
+                for (DateTime activateDate in widget.activeDates!) {
+                  // Compare the date if it is in the
+                  if (_compareDate(date, activateDate)) {
+                    isDeactivated = false;
+                    break;
+                  }
+                }
               }
-            }
-          }
 
-          // check if this date needs to be deactivated for only ActivatedDates
-          if (widget.activeDates != null) {
-            isDeactivated = true;
-            for (DateTime activateDate in widget.activeDates!) {
-              // Compare the date if it is in the
-              if (_compareDate(date, activateDate)) {
-                isDeactivated = false;
-                break;
-              }
-            }
-          }
+              // Check if this date is the one that is currently selected
+              bool isSelected = _currentDate != null
+                  ? _compareDate(date, _currentDate!)
+                  : false;
 
-          // Check if this date is the one that is currently selected
-          bool isSelected =
-              _currentDate != null ? _compareDate(date, _currentDate!) : false;
+              // Return the Date Widget
+              return DateWidget(
+                date: date,
+                monthTextStyle: isDeactivated
+                    ? deactivatedMonthStyle
+                    : isSelected
+                        ? selectedMonthStyle
+                        : widget.monthTextStyle,
+                dateTextStyle: isDeactivated
+                    ? deactivatedDateStyle
+                    : isSelected
+                        ? selectedDateStyle
+                        : widget.dateTextStyle,
+                dayTextStyle: isDeactivated
+                    ? deactivatedDayStyle
+                    : isSelected
+                        ? selectedDayStyle
+                        : widget.dayTextStyle,
+                width: widget.width,
+                locale: widget.locale,
+                selectionColor:
+                    isSelected ? widget.selectionColor : Colors.transparent,
+                onDateSelected: (selectedDate) {
+                  // Don't notify listener if date is deactivated
+                  if (isDeactivated) return;
 
-          // Return the Date Widget
-          return DateWidget(
-            date: date,
-            monthTextStyle: isDeactivated
-                ? deactivatedMonthStyle
-                : isSelected
-                    ? selectedMonthStyle
-                    : widget.monthTextStyle,
-            dateTextStyle: isDeactivated
-                ? deactivatedDateStyle
-                : isSelected
-                    ? selectedDateStyle
-                    : widget.dateTextStyle,
-            dayTextStyle: isDeactivated
-                ? deactivatedDayStyle
-                : isSelected
-                    ? selectedDayStyle
-                    : widget.dayTextStyle,
-            width: widget.width,
-            locale: widget.locale,
-            selectionColor:
-                isSelected ? widget.selectionColor : Colors.transparent,
-            onDateSelected: (selectedDate) {
-              // Don't notify listener if date is deactivated
-              if (isDeactivated) return;
-
-              // A date is selected
-              if (widget.onDateChange != null) {
-                widget.onDateChange!(selectedDate);
-              }
-              setState(() {
-                _currentDate = selectedDate;
-              });
+                  // A date is selected
+                  if (widget.onDateChange != null) {
+                    widget.onDateChange!(selectedDate);
+                  }
+                  setState(() {
+                    _currentDate = selectedDate;
+                  });
+                },
+              );
             },
-          );
-        },
-      ),
-    );
+          ),
+        ));
   }
 
   /// Helper function to compare two dates
