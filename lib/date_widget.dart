@@ -5,6 +5,7 @@
 /// github: https://github.com/iamvivekkaushik/
 /// ***
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:date_picker_timeline/gestures/tap.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -43,31 +44,33 @@ class DateWidget extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children:
-                DateUtils.dateOnly(date) == DateUtils.dateOnly(DateTime.now())
-                    ? [
-                        Text("วันนี้", style: dayTextStyle),
-                      ]
-                    : [
-                        Text(
-                            new DateFormat("E", locale)
+            children: DateUtils.dateOnly(date) ==
+                    DateUtils.dateOnly(DateTime.now())
+                ? [
+                    AutoSizeText("วันนี้", maxLines: 1, style: dayTextStyle),
+                  ]
+                : [
+                    AutoSizeText(
+                        new DateFormat("E", locale)
+                            .format(date)
+                            .toUpperCase(), // WeekDay
+                        style: dayTextStyle),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        AutoSizeText(date.day.toString(),
+                            maxLines: 1, // Date
+                            style: dateTextStyle),
+                        AutoSizeText(
+                            new DateFormat("MMM", locale)
                                 .format(date)
-                                .toUpperCase(), // WeekDay
-                            style: dayTextStyle),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(date.day.toString(), // Date
-                                style: dateTextStyle),
-                            Text(
-                                new DateFormat("MMM", locale)
-                                    .format(date)
-                                    .toUpperCase(), // Month
-                                style: monthTextStyle),
-                          ],
-                        ),
+                                .toUpperCase(),
+                            maxLines: 1, // Month
+                            style: monthTextStyle),
                       ],
+                    ),
+                  ],
           ),
         ),
       ),
