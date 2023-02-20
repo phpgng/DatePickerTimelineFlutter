@@ -38,6 +38,12 @@ class DateWidget extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(8.0)),
           color: selectionColor,
+          border: DateUtils.dateOnly(date) == DateUtils.dateOnly(DateTime.now())
+              ? Border.all(
+                  color: Colors.white,
+                  width: 1.0,
+                )
+              : null,
         ),
         child: Padding(
           padding: EdgeInsets.all(8),
