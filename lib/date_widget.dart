@@ -56,12 +56,15 @@ class DateWidget extends StatelessWidget {
                             .toUpperCase(), // WeekDay
                         style: dayTextStyle),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        AutoSizeText(date.day.toString(),
-                            maxLines: 1, // Date
-                            style: dateTextStyle),
+                        Container(
+                          margin: EdgeInsets.only(right: 5),
+                          child: AutoSizeText(date.day.toString(),
+                              maxLines: 1, // Date
+                              style: dateTextStyle),
+                        ),
                         AutoSizeText(
                             new DateFormat("MMM", locale)
                                 .format(date)
